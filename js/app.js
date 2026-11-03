@@ -1,5 +1,10 @@
 const App = {
   currentPage: null,
+  currentRoute: null,
+  _lastHandledRoute: null,
+  _lastHandledAt: 0,
+
+  GUIDE_SECTIONS: ['how-it-works', 'safety', 'copyright', 'faq'],
 
   TOP_NAV_ITEMS: [
     { id: 'nfl', label: 'NFL', path: '/league/nfl' },
@@ -26,10 +31,12 @@ const App = {
   async init() {
     this.initImportantNotice();
     this.initDiscordInvite();
-    await Leagues.load();
+    this.setupChrome();
     this.setupNavigation();
     this.setupKeyboardNav();
-    this.handleRoute();
+
+    this.setMode(this.isWatchHash() ? 'watch' : 'guide');
+    await this.handleRoute();
 
     window.addEventListener('hashchange', () => this.handleRoute());
     window.addEventListener('popstate', () => this.handleRoute());
@@ -93,14 +100,23 @@ const App = {
       el.hidden = true;
     });
     const reshow = () => {
-      el.hidden = false;
+      // Only bring the notice back when entering a match, not when moving
+      // between guide sections.
+      if (this.isWatchHash()) {
+        el.hidden = false;
+      }
     };
     window.addEventListener('hashchange', reshow);
     window.addEventListener('popstate', reshow);
   },
 
+  isWatchHash(hash) {
+    return (hash || window.location.hash || '').startsWith('#/match/');
+  },
+
   /**
-   * The stream site has no homepage, so Back always returns to the main site.
+   * The stream site's homepage is a guide. Only match routes belong here;
+   * other routes are redirected back to the main schedule site.
    */
   goBack() {
     window.location.href = SiteConfig.mainSite + '/';
@@ -108,44 +124,66 @@ const App = {
 
   setupKeyboardNav() {
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        const hash = window.location.hash;
-        if (hash && hash !== '#/' && hash !== '#') {
-          this.goBack();
-        }
+      if (e.key !== 'Escape') return;
+      // Escape only returns to the main site from a watch page.
+      if (!this.isWatchHash()) return;
+      const hash = window.location.hash;
+      if (hash && hash !== '#/' && hash !== '#') {
+        this.goBack();
       }
     });
   },
 
-  async setupNavigation() {
-    const sportsToggle = document.getElementById('sports-toggle');
-    const sportsDropdown = document.getElementById('sports-dropdown');
-    const sportsMenu = document.getElementById('sports-menu');
+  /**
+   * Persistent chrome that exists in both modes: the mobile menu.
+   */
+  setupChrome() {
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
     const mobileNav = document.getElementById('mobile-nav');
-    const mobileSportsList = document.getElementById('mobile-sports-list');
-
-    sportsToggle.addEventListener('click', (e) => {
-      e.stopPropagation();
-      sportsDropdown.classList.toggle('open');
-    });
-
-    document.addEventListener('click', () => {
-      sportsDropdown.classList.remove('open');
-    });
-
-    sportsMenu.addEventListener('click', (e) => {
-      e.stopPropagation();
-    });
+    if (!mobileMenuBtn || !mobileNav) return;
 
     mobileMenuBtn.addEventListener('click', () => {
       mobileMenuBtn.classList.toggle('open');
       mobileNav.classList.toggle('open');
     });
 
+    // Event delegation so both static guide links and dynamically generated
+    // league links close the menu.
+    mobileNav.addEventListener('click', (e) => {
+      if (e.target.closest('a')) {
+        mobileMenuBtn.classList.remove('open');
+        mobileNav.classList.remove('open');
+      }
+    });
+  },
+
+  /**
+   * Watch-mode navigation (hidden on the guide homepage).
+   */
+  async setupNavigation() {
+    const sportsToggle = document.getElementById('sports-toggle');
+    const sportsDropdown = document.getElementById('sports-dropdown');
+    const sportsMenu = document.getElementById('sports-menu');
+    const mobileSportsList = document.getElementById('mobile-sports-list');
+
+    if (sportsToggle && sportsDropdown && sportsMenu) {
+      sportsToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        sportsDropdown.classList.toggle('open');
+      });
+
+      document.addEventListener('click', () => {
+        sportsDropdown.classList.remove('open');
+      });
+
+      sportsMenu.addEventListener('click', (e) => {
+        e.stopPropagation();
+      });
+    }
+
     this.populateLeagueNavLinks();
-    this.populateLeaguesMenu(sportsMenu);
-    this.populateMobileLeaguesList(mobileSportsList);
+    if (sportsMenu) this.populateLeaguesMenu(sportsMenu);
+    if (mobileSportsList) this.populateMobileLeaguesList(mobileSportsList);
   },
 
   populateLeagueNavLinks() {
@@ -172,9 +210,6 @@ const App = {
         href: SiteConfig.mainHash(`/category/${cat.id}`)
       });
       link.innerHTML = `${Utils.getSportImageHTML(cat.id)} ${cat.name}`;
-      link.addEventListener('click', () => {
-        document.getElementById('sports-dropdown').classList.remove('open');
-      });
       container.appendChild(link);
     }
   },
@@ -188,10 +223,6 @@ const App = {
         href: SiteConfig.mainHash(item.path)
       });
       link.textContent = item.label;
-      link.addEventListener('click', () => {
-        document.getElementById('mobile-menu-btn').classList.remove('open');
-        document.getElementById('mobile-nav').classList.remove('open');
-      });
       container.appendChild(link);
     }
 
@@ -204,33 +235,138 @@ const App = {
         href: SiteConfig.mainHash(`/category/${cat.id}`)
       });
       link.innerHTML = `${Utils.getSportImageHTML(cat.id)} ${cat.name}`;
-      link.addEventListener('click', () => {
-        document.getElementById('mobile-menu-btn').classList.remove('open');
-        document.getElementById('mobile-nav').classList.remove('open');
-      });
       container.appendChild(link);
     }
   },
 
-  handleRoute() {
-    const hash = window.location.hash || '#/';
-    const app = document.getElementById('app');
+  setMode(mode) {
+    const root = document.documentElement;
+    root.classList.toggle('mode-guide', mode === 'guide');
+    root.classList.toggle('mode-watch', mode === 'watch');
 
+    const guideEl = document.getElementById('guide-main');
+    const appEl = document.getElementById('app');
+
+    if (mode === 'guide') {
+      if (guideEl) guideEl.hidden = false;
+      if (appEl) {
+        appEl.hidden = true;
+        appEl.innerHTML = '';
+      }
+    } else {
+      if (guideEl) guideEl.hidden = true;
+      if (appEl) appEl.hidden = false;
+    }
+
+    document.title = mode === 'watch'
+      ? 'Watch live — GKStreams'
+      : 'GKStreams Guide — Free Sports Streaming, Safety & Copyright';
+  },
+
+  /**
+   * Returns '' for the guide homepage, a section id for a guide section,
+   * or null when the hash is not a guide route.
+   */
+  getGuideSection(hash) {
+    if (!hash || hash === '#' || hash === '#/' || hash === '#/guide' || hash === '#/guide/') {
+      return '';
+    }
+
+    if (hash.startsWith('#/guide/')) {
+      const section = hash.slice('#/guide/'.length);
+      return this.GUIDE_SECTIONS.includes(section) ? section : '';
+    }
+
+    return null;
+  },
+
+  showGuide(section) {
+    if (section) {
+      const target = document.getElementById(section);
+      if (target) {
+        requestAnimationFrame(() => {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+        return;
+      }
+    }
     window.scrollTo(0, 0);
-    this.updateActiveNav(hash);
+  },
+
+  /**
+   * Guard against browsers firing both hashchange and popstate for the
+   * same navigation.
+   */
+  shouldHandleRoute(hash) {
+    const now = Date.now();
+    if (this._lastHandledRoute === hash && now - this._lastHandledAt < 150) {
+      return false;
+    }
+    this._lastHandledRoute = hash;
+    this._lastHandledAt = now;
+    return true;
+  },
+
+  async handleRoute() {
+    const hash = window.location.hash || '#/';
+    if (!this.shouldHandleRoute(hash)) return;
 
     if (hash.startsWith('#/match/')) {
-      const matchId = decodeURIComponent(hash.replace('#/match/', ''));
+      this.setMode('watch');
+      this.updateActiveNav(hash);
+      window.scrollTo(0, 0);
+
+      let matchId = '';
+      try {
+        matchId = decodeURIComponent(hash.replace('#/match/', '')).trim();
+      } catch (e) {
+        matchId = '';
+      }
+
+      if (!matchId) {
+        window.location.replace(SiteConfig.mainSite + '/');
+        return;
+      }
+
       this.currentPage = `match-${matchId}`;
-      Match.render(app, matchId);
-    } else {
-      // This repository only serves the watch page. Everything else belongs to
-      // the main site.
-      window.location.replace(SiteConfig.mainSite + '/' + hash);
+      this.currentRoute = hash;
+
+      await Leagues.load();
+
+      // Bail out if the visitor navigated away while leagues were loading.
+      if ((window.location.hash || '#/') !== hash) return;
+
+      Match.render(document.getElementById('app'), matchId);
+      return;
     }
+
+    const guideSection = this.getGuideSection(hash);
+    if (guideSection !== null) {
+      this.setMode('guide');
+      this.currentPage = 'guide';
+      this.currentRoute = hash;
+      this.showGuide(guideSection);
+      this.updateActiveNav(hash);
+      return;
+    }
+
+    // This repository only serves the guide and watch pages. Everything else
+    // belongs to the main schedule site.
+    window.location.replace(SiteConfig.mainSite + '/' + hash);
   },
 
   updateActiveNav(hash) {
+    document.querySelectorAll('.guide-nav-link').forEach(link => {
+      const target = link.getAttribute('href');
+      const isActive = target === hash;
+      link.classList.toggle('active', isActive);
+      if (isActive) {
+        link.setAttribute('aria-current', 'page');
+      } else {
+        link.removeAttribute('aria-current');
+      }
+    });
+
     document.querySelectorAll('.league-nav-link').forEach(link => {
       link.classList.toggle('active', link.getAttribute('href') === hash);
     });

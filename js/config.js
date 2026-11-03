@@ -1,6 +1,7 @@
 /**
  * Cross-site configuration.
- * The stream site is a standalone watch page; its navigation links back to the main site.
+ * The stream site serves a guide homepage and standalone watch pages.
+ * Watch-page navigation links back to the main schedule site.
  */
 const SiteConfig = {
   mainSite: 'https://gkstreams.shop',

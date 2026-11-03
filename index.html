@@ -1,35 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="mode-guide">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="GKStreams - Watch live sports streams for free. NFL, NBA, MLB, NHL, UFC, Soccer and more.">
+  <meta name="description" content="A simple guide to free sports streaming: how the watch page works, safe streaming tips, and copyright information. GKStreams does not host or upload any content.">
   <meta name="theme-color" content="#0a0a0f">
   <meta name="robots" content="noindex, follow">
-  <title>GKStreams - Live Sports Streaming</title>
-  
+  <title>GKStreams Guide — Free Sports Streaming, Safety &amp; Copyright</title>
+
   <link rel="icon" href="img/favicon/favicon.ico" sizes="48x48">
   <link rel="icon" type="image/svg+xml" href="img/favicon/favicon.svg">
   <link rel="icon" type="image/png" sizes="96x96" href="img/favicon/favicon-96x96.png">
   <link rel="apple-touch-icon" href="img/favicon/apple-touch-icon.png">
   <link rel="manifest" href="img/favicon/site.webmanifest">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="GKStreams - Live Sports Streaming">
-  <meta property="og:description" content="Watch live sports streams for free. NFL, NBA, MLB, NHL, UFC, Soccer and more.">
+  <meta property="og:title" content="GKStreams Guide — Free Sports Streaming, Safety &amp; Copyright">
+  <meta property="og:description" content="How free sports streaming works, how to watch safely, and what you should know about copyright. GKStreams does not host or upload any content.">
   <meta property="og:image" content="img/favicon/web-app-manifest-512x512.png">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="GKStreams - Live Sports Streaming">
-  <meta name="twitter:description" content="Watch live sports streams for free. NFL, NBA, MLB, NHL, UFC, Soccer and more.">
+  <meta name="twitter:title" content="GKStreams Guide — Free Sports Streaming, Safety &amp; Copyright">
+  <meta name="twitter:description" content="How free sports streaming works, how to watch safely, and what you should know about copyright. GKStreams does not host or upload any content.">
   <meta name="twitter:image" content="img/favicon/web-app-manifest-512x512.png">
   <link rel="preconnect" href="https://api.reedstreams.link" crossorigin>
   <link rel="dns-prefetch" href="https://embed.st">
   <link rel="preload" href="data/leagues.json" as="fetch" crossorigin>
-    <link rel="stylesheet" href="css/style.css?v=31">
+  <link rel="stylesheet" href="css/style.css?v=32">
+  <script>
+    (function () {
+      var hash = window.location.hash || '';
+      if (hash.indexOf('#/match/') === 0) {
+        document.documentElement.className =
+          document.documentElement.className.replace(/\bmode-guide\b/, 'mode-watch');
+      }
+    })();
+  </script>
 </head>
 <body>
   <header class="header" id="header">
     <div class="header-inner">
-      <a href="https://gkstreams.shop/" class="logo">
+      <a href="#/" class="logo logo-guide" aria-label="GKStreams guide home">
+        <span class="logo-text">GK<span class="logo-accent">Streams</span></span>
+      </a>
+      <a href="https://gkstreams.shop/" class="logo logo-watch" aria-label="GKStreams home">
         <span class="logo-text">GK<span class="logo-accent">Streams</span></span>
       </a>
       <a class="header-action discord-link" id="discord-join-link" href="#" aria-label="Discord" title="Join our Discord">
@@ -46,7 +58,13 @@
         </svg>
         <span class="header-action-label">App</span>
       </a>
-      <nav class="nav" id="nav">
+      <nav class="nav nav-guide" id="guide-nav" aria-label="Guide sections">
+        <a class="nav-link guide-nav-link" href="#/guide/how-it-works">How It Works</a>
+        <a class="nav-link guide-nav-link" href="#/guide/safety">Safe Streaming</a>
+        <a class="nav-link guide-nav-link" href="#/guide/copyright">Copyright</a>
+        <a class="nav-link guide-nav-link" href="#/guide/faq">FAQ</a>
+      </nav>
+      <nav class="nav nav-watch" id="nav">
         <div class="league-nav-links" id="league-nav-links"></div>
         <div class="nav-dropdown" id="sports-dropdown">
           <button class="nav-link nav-dropdown-toggle" id="sports-toggle">
@@ -60,7 +78,14 @@
       </button>
     </div>
     <div class="mobile-nav" id="mobile-nav">
-      <div class="mobile-nav-section" id="mobile-sports-list"></div>
+      <div class="mobile-nav-section mobile-guide-links">
+        <a class="mobile-nav-link" href="#/">Guide Home</a>
+        <a class="mobile-nav-link" href="#/guide/how-it-works">How It Works</a>
+        <a class="mobile-nav-link" href="#/guide/safety">Safe Streaming</a>
+        <a class="mobile-nav-link" href="#/guide/copyright">Copyright</a>
+        <a class="mobile-nav-link" href="#/guide/faq">FAQ</a>
+      </div>
+      <div class="mobile-nav-section mobile-watch-links" id="mobile-sports-list"></div>
     </div>
   </header>
 
@@ -104,11 +129,153 @@
     </div>
   </div>
 
-  <main class="main" id="app"></main>
+  <main class="main guide-main" id="guide-main">
+    <section class="guide-hero">
+      <div class="container guide-wrap">
+        <p class="guide-eyebrow">GKStreams Guide</p>
+        <h1 class="guide-title">Free sports streaming, explained simply.</h1>
+        <p class="guide-lede">
+          This page is a short guide to free live sports streaming: how the watch page works,
+          how to browse safely, and what you should know about copyright. GKStreams does not
+          host or upload any video.
+        </p>
+        <div class="guide-actions">
+          <a class="guide-btn" href="#/guide/how-it-works">How it works</a>
+          <a class="guide-btn secondary" href="#/guide/safety">Safe streaming tips</a>
+        </div>
+        <p class="guide-note">
+          Guide only — no streams are hosted on this page. Playback is provided by third-party sources.
+        </p>
+      </div>
+    </section>
+
+    <section class="guide-section" id="how-it-works">
+      <div class="container guide-wrap">
+        <h2 class="guide-heading">How free sports streaming works</h2>
+        <p class="guide-sub">
+          GKStreams keeps the schedule and the player on separate pages. Watching a match takes three steps.
+        </p>
+        <div class="guide-grid three">
+          <article class="guide-card">
+            <span class="guide-step">1</span>
+            <h3>Open the schedule</h3>
+            <p>Start on the official GKStreams schedule page and browse today’s live and upcoming matches.</p>
+          </article>
+          <article class="guide-card">
+            <span class="guide-step">2</span>
+            <h3>Pick a match</h3>
+            <p>Click any live or upcoming match. The schedule sends you straight to that match’s watch page.</p>
+          </article>
+          <article class="guide-card">
+            <span class="guide-step">3</span>
+            <h3>Choose a stream</h3>
+            <p>On the watch page, pick an available stream server, press play, and use fullscreen for the best view.</p>
+          </article>
+        </div>
+        <div class="guide-callout">
+          <strong>Already on a watch page?</strong>
+          Choose any available server tab above the player. If no streams are listed yet, check back
+          closer to kick-off — free sources can appear or disappear at short notice.
+        </div>
+      </div>
+    </section>
+
+    <section class="guide-section" id="safety">
+      <div class="container guide-wrap">
+        <h2 class="guide-heading">Safe streaming tips</h2>
+        <p class="guide-sub">
+          Free streams are usually funded by ads. A few simple habits will keep your device and
+          personal information safer while you watch.
+        </p>
+        <ul class="guide-list">
+          <li>Keep your browser, operating system, and antivirus software up to date.</li>
+          <li>Use a reputable ad and tracker blocker where possible.</li>
+          <li>Never download “codecs”, “players”, or “updates” from a stream pop-up or overlay.</li>
+          <li>Close unexpected tabs and windows. Avoid large fake “Play” buttons that open new pages.</li>
+          <li>Only install the Android app from the official link shared on this site.</li>
+          <li>Never enter passwords, card details, or other personal information on a stream page.</li>
+          <li>Avoid sensitive activity such as banking while connected to unknown public Wi-Fi.</li>
+          <li>If redirects keep happening, clear your browser site data and run a malware scan.</li>
+        </ul>
+        <div class="guide-callout danger">
+          <strong>Warning:</strong> If a stream asks you to disable your antivirus, install unknown software,
+          or send payment to unlock playback, close it immediately. That is not part of GKStreams.
+        </div>
+      </div>
+    </section>
+
+    <section class="guide-section" id="copyright">
+      <div class="container guide-wrap">
+        <h2 class="guide-heading">Copyright and legal notice</h2>
+        <div class="guide-callout danger">
+          <strong>GKStreams does not host, upload, record, or store any match footage.</strong>
+          All videos are embedded from third-party providers. We do not control their content,
+          quality, or availability.
+        </div>
+        <ul class="guide-list">
+          <li>Copyright in match footage belongs to the relevant leagues, clubs, and broadcasters.</li>
+          <li>Do not record, redistribute, re-upload, or sell any stream or broadcast.</li>
+          <li>Streams may be removed, geo-blocked, or become unavailable at any time.</li>
+          <li>Copyright laws differ by country. It is your responsibility to follow the rules where you live.</li>
+          <li>Rights holders who believe content is being shared unlawfully can contact us through Discord.</li>
+        </ul>
+        <div class="guide-callout warn">
+          <strong>Please watch responsibly.</strong> This guide is for informational purposes only and is
+          not legal advice. If you are unsure whether a stream is authorised in your region, do not use it.
+        </div>
+      </div>
+    </section>
+
+    <section class="guide-section" id="faq">
+      <div class="container guide-wrap">
+        <h2 class="guide-heading">Frequently asked questions</h2>
+        <p class="guide-sub">Quick answers about free sports streaming and the watch page.</p>
+        <div class="guide-faq">
+          <details>
+            <summary>Is GKStreams free to use?</summary>
+            <p>Yes. The guide and watch pages are free to browse. Free streams are usually supported by advertising.</p>
+          </details>
+          <details>
+            <summary>Do I need an account to watch?</summary>
+            <p>No account is required. Open the schedule, select a match, and use the stream tabs on the watch page.</p>
+          </details>
+          <details>
+            <summary>Why is a match missing from the watch page?</summary>
+            <p>The watch page only exists for individual matches. If you opened it directly, go back to the official schedule page and select an active match there.</p>
+          </details>
+          <details>
+            <summary>Why do pop-ups or new tabs appear?</summary>
+            <p>Free third-party embeds often use ads. Close unexpected tabs, avoid fake play buttons, and follow the safety tips above.</p>
+          </details>
+          <details>
+            <summary>Is free sports streaming legal?</summary>
+            <p>GKStreams does not host or upload any video. Copyright and streaming rules vary by country, so check your local laws before watching.</p>
+          </details>
+          <details>
+            <summary>Can I watch on a phone or tablet?</summary>
+            <p>Yes. Use a modern mobile browser, rotate to landscape for fullscreen, and be mindful of mobile data usage.</p>
+          </details>
+          <details>
+            <summary>A stream stopped working. What should I do?</summary>
+            <p>Switch to another stream server tab and refresh the page. Free sources can go offline without notice.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <main class="main" id="app" hidden></main>
 
   <footer class="footer">
     <div class="footer-inner">
-      <div class="footer-sports">
+      <div class="footer-sports footer-guide-links">
+        <a href="#/" class="footer-sport-link">Guide Home</a>
+        <a href="#/guide/how-it-works" class="footer-sport-link">How It Works</a>
+        <a href="#/guide/safety" class="footer-sport-link">Safe Streaming</a>
+        <a href="#/guide/copyright" class="footer-sport-link">Copyright</a>
+        <a href="#/guide/faq" class="footer-sport-link">FAQ</a>
+      </div>
+      <div class="footer-sports footer-watch-links">
         <a href="https://gkstreams.shop/#/league/nfl" class="footer-sport-link">NFL</a>
         <a href="https://gkstreams.shop/#/league/nba" class="footer-sport-link">NBA</a>
         <a href="https://gkstreams.shop/#/league/mlb" class="footer-sport-link">MLB</a>
@@ -124,12 +291,12 @@
     </div>
   </footer>
 
-  <script defer src="js/config.js?v=31"></script>
-  <script defer src="js/utils.js?v=31"></script>
-  <script defer src="js/api.js?v=31"></script>
-  <script defer src="js/leagues.js?v=31"></script>
-  <script defer src="js/match.js?v=31"></script>
-  <script defer src="js/app.js?v=31"></script>
+  <script defer src="js/config.js?v=32"></script>
+  <script defer src="js/utils.js?v=32"></script>
+  <script defer src="js/api.js?v=32"></script>
+  <script defer src="js/leagues.js?v=32"></script>
+  <script defer src="js/match.js?v=32"></script>
+  <script defer src="js/app.js?v=32"></script>
 
   <!-- Histats.com  START  (aync)-->
   <script type="text/javascript">var _Hasync= _Hasync|| [];
@@ -141,7 +308,7 @@
   hs.src = ('//s10.histats.com/js15_as.js');
   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(hs);
   })();</script>
-  <noscript><a href="https://gkstreams.shop/" target="_blank"><img  src="//sstatic1.histats.com/0.gif?5054001&101" alt="website hit counter" border="0"></a></noscript>
+  <noscript><a href="https://gkstreams1.click/" target="_blank"><img  src="//sstatic1.histats.com/0.gif?5054001&101" alt="website hit counter" border="0"></a></noscript>
   <!-- Histats.com  END  -->
 
 
