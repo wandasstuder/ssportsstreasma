@@ -115,6 +115,17 @@
   var matchId = params.get("id");
 
   if (!matchId) {
+    var legacyHash = window.location.hash || "";
+    if (legacyHash.indexOf("#/match/") === 0) {
+      var legacyId = decodeURIComponent(legacyHash.slice("#/match/".length));
+      if (legacyId) {
+        window.location.replace("?id=" + encodeURIComponent(legacyId));
+        return;
+      }
+    }
+  }
+
+  if (!matchId) {
     if (streamStatus) streamStatus.textContent = "No match ID provided. Open a match from the GKStreams schedule.";
     if (matchTitleEl) matchTitleEl.textContent = "GKStreams Live Sports Stream";
     if (matchStatusEl) matchStatusEl.textContent = "Select a match from the schedule to begin.";
